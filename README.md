@@ -3,6 +3,7 @@ yt-music-dl
 
 TODO
 - [x] Create a yt scrapper
+- [ ] Set a video limit
 - [ ] Refactor the code and make it more fancy
 - [ ] Separate the cli from the original program
 - [ ] Add the download feature 
