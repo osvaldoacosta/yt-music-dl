@@ -16,6 +16,6 @@ async fn main() {
     //---
     
     let videos = query_videos(music_name).await;  
-    println!("{:?}", videos);
+    println!("{}", videos);
 }
 

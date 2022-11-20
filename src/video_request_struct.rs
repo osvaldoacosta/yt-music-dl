@@ -4,8 +4,9 @@ use regex::Regex;
 use std::{io::Error, io::ErrorKind};
 use serde_json::Value;
 
+use serde::{Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Video {
     pub id: String,
     pub title: String,
@@ -22,7 +23,7 @@ pub struct ClientRequest {
 
 
 impl ClientRequest {
-    pub(crate) async fn get_html(&mut self, query: String) -> Result<String, Error> {
+    pub async fn get_html(&mut self, query: String) -> Result<String, Error> {
         let res = self
             .client
             .get(query)
@@ -37,7 +38,7 @@ impl ClientRequest {
             Err(_) => Err(Error::new(ErrorKind::Other, "Failed to load page")),
         }
     }
-    pub(crate) async fn get_data(&self, html: String) -> Result<String, Error> {
+    pub async fn get_data(&self, html: String) -> Result<String, Error> {
         let re = self.re_pat.captures(&html);
         match re {
             Some(v) => match v.get(1) {
@@ -47,7 +48,7 @@ impl ClientRequest {
             None => Err(Error::new(ErrorKind::Other, "Failed to match")),
         }
     }
-    pub(crate) async fn get_json(&mut self, json_str: String) -> String {
+    pub async fn get_json(&mut self, json_str: String) -> String {
         let parse: Value = serde_json::from_str(&json_str).unwrap();
 
         let req_parse: Value = serde_json::from_str(&format!(
@@ -65,7 +66,8 @@ impl ClientRequest {
         let mut videos: Vec<Video> = Vec::new();
 
         for data in reparse {
-            if data["videoRenderer"].is_null() {
+            //The second case is when it's a livestream
+            if data["videoRenderer"].is_null() || data["videoRenderer"]["lengthText"]["simpleText"].is_null() {
                 continue;
             }
             let uniform = &data["videoRenderer"];
